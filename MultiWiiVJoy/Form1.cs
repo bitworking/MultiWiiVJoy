@@ -85,7 +85,18 @@ namespace MultiWiiVJoy
 
         void serial_DataReceived(object sender, DataReceivedArgs e)
         {
-            if (e.Data.Length != 22) {
+            if (e.Data.Length < 4) {
+                // too short
+                return;
+            }
+            
+            if( 6 + e.Data[3] != e.Data.Length) {
+                // frame length mismatch
+                return;
+            }
+            
+            if(e.Data[3] < 8) {
+                // need at least four channels
                 return;
             }
 
@@ -97,7 +108,7 @@ namespace MultiWiiVJoy
                 checksum ^= e.Data[i];
             }
 
-            if (checksum != e.Data[21])
+            if (checksum != e.Data[e.Data.Length - 1])
             {
                 return;
             }
